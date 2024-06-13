@@ -1,0 +1,3 @@
+/home/cidi/VscodeWorkspace/calSafetySpeed/CMakeFiles/a.out.dir
+/home/cidi/VscodeWorkspace/calSafetySpeed/CMakeFiles/edit_cache.dir
+/home/cidi/VscodeWorkspace/calSafetySpeed/CMakeFiles/rebuild_cache.dir

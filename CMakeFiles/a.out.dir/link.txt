@@ -1,0 +1,1 @@
+/usr/bin/c++ -rdynamic CMakeFiles/a.out.dir/main.cpp.o CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o CMakeFiles/a.out.dir/train.cpp.o -o a.out 
