@@ -153,30 +153,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/a.out.dir/build.make CMakeFiles/a.out.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-tempCodeRunnerFile.o: tempCodeRunnerFile.cpp.o
-.PHONY : tempCodeRunnerFile.o
-
-# target to build an object file
-tempCodeRunnerFile.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/a.out.dir/build.make CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o
-.PHONY : tempCodeRunnerFile.cpp.o
-
-tempCodeRunnerFile.i: tempCodeRunnerFile.cpp.i
-.PHONY : tempCodeRunnerFile.i
-
-# target to preprocess a source file
-tempCodeRunnerFile.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/a.out.dir/build.make CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.i
-.PHONY : tempCodeRunnerFile.cpp.i
-
-tempCodeRunnerFile.s: tempCodeRunnerFile.cpp.s
-.PHONY : tempCodeRunnerFile.s
-
-# target to generate assembly for a file
-tempCodeRunnerFile.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/a.out.dir/build.make CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.s
-.PHONY : tempCodeRunnerFile.cpp.s
-
 train.o: train.cpp.o
 .PHONY : train.o
 
@@ -213,9 +189,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... tempCodeRunnerFile.o"
-	@echo "... tempCodeRunnerFile.i"
-	@echo "... tempCodeRunnerFile.s"
 	@echo "... train.o"
 	@echo "... train.i"
 	@echo "... train.s"

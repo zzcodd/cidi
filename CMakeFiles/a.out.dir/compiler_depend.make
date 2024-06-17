@@ -364,9 +364,6 @@ CMakeFiles/a.out.dir/main.cpp.o: main.cpp \
   /usr/include/c++/7/shared_mutex \
   train.h
 
-CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o: tempCodeRunnerFile.cpp \
-  /usr/include/stdc-predef.h
-
 CMakeFiles/a.out.dir/train.cpp.o: train.cpp \
   /usr/include/stdc-predef.h \
   train.h \
@@ -734,8 +731,6 @@ CMakeFiles/a.out.dir/train.cpp.o: train.cpp \
 train.cpp:
 
 /usr/include/c++/7/shared_mutex:
-
-tempCodeRunnerFile.cpp:
 
 /usr/include/c++/7/bits/unordered_map.h:
 

@@ -1,8 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/a.out.dir/main.cpp.o"
   "CMakeFiles/a.out.dir/main.cpp.o.d"
-  "CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o"
-  "CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o.d"
   "CMakeFiles/a.out.dir/train.cpp.o"
   "CMakeFiles/a.out.dir/train.cpp.o.d"
   "a.out"

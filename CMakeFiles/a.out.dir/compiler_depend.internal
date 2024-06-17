@@ -365,10 +365,6 @@ CMakeFiles/a.out.dir/main.cpp.o
  /usr/include/c++/7/shared_mutex
  /home/cidi/VscodeWorkspace/calSafetySpeed/train.h
 
-CMakeFiles/a.out.dir/tempCodeRunnerFile.cpp.o
- /home/cidi/VscodeWorkspace/calSafetySpeed/tempCodeRunnerFile.cpp
- /usr/include/stdc-predef.h
-
 CMakeFiles/a.out.dir/train.cpp.o
  /home/cidi/VscodeWorkspace/calSafetySpeed/train.cpp
  /usr/include/stdc-predef.h
