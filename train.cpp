@@ -89,7 +89,7 @@ float GetSpeed::KmTurnToM(float val) {
  * @param {float } mSpeed    最大安全速度
  * @param {int} curState         探测障碍物情况
  */
-std::string GetSpeed::GetDrivingRisk ( int dMode, float dSpeed, float  mSpeed , int curState){
+std::string GetSpeed::GetDrivingRisk (int dMode, float dSpeed, float mSpeed, int curState){
     //cout<<"列车风险等级评估模式为： "<<drivingMode[dMode]<<endl;
   std::string curMode = drivingMode[dMode];
   std::string dRisk = " ";
@@ -99,9 +99,9 @@ std::string GetSpeed::GetDrivingRisk ( int dMode, float dSpeed, float  mSpeed , 
   if( curMode == "后备模式" || curState == 1) {
     if(dSpeed > mSpeed){
       dRisk = "High risk";
-    } else if  (dSpeed >= mSpeed-riskLevel ) {
+    } else if(dSpeed >= mSpeed-riskLevel ) {
       dRisk = "Medium risk";
-    } else if(dSpeed>0)  {
+    } else if(dSpeed>0) {
       dRisk = "Low risk";
     }       
   }
@@ -131,20 +131,17 @@ void GetSpeed::GetBrakingDistance() {
   std::cout << "请输入你想要求什么坡度千分数下的刹车距离 (默认为0)" << std::endl;
   std::cin >> slopePer;
 
-    // 获取当前时间点
+  // 获取当前时间点
   auto now = std::chrono::system_clock::now();
   // 转换为time_t格式
-  std::time_t now_c = std::chrono::system_clock::to_time_t(now - std::chrono::hours(24));
+  std::time_t now_c = std::chrono::system_clock::to_time_t(now);
   // 转换为本地时间
   std::tm* now_tm = std::localtime(&now_c);
   // 输出到日志
-  std::cout << "[";
-  std::cout << std::put_time(now_tm, "%Y-%m-%d %X"); // 格式化时间戳
-  std::cout << "] My log message" << std::endl;
-
+  std::cout << "[" << std::put_time(now_tm, "%Y-%m-%d %X")  << "] My log message" << std::endl;
   outfile << "[" << std::put_time(now_tm, "%Y-%m-%d %X") <<"]" <<std::endl;
 
-  outfile << "Current slopePer : " << slopePer << std::endl;
+  outfile << "Current slopePer (‰) : " << slopePer << std::endl;
   outfile << "The maximum braking distance under different load conditions and weather conditions (Unit: meters) " << std::endl;
 
   for (dSpeed; dSpeed <= 140; dSpeed += 10) {
