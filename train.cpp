@@ -22,7 +22,10 @@ float GetSpeed::GetMaxAcc(float dSpeed, enum LoadCond loadSituation, float slope
       acc = (--it)->second;
       break;
     }
+    else
+      acc = it->second;
   }
+  
   if(acc < 0) 
     std::cout << "The current speed exceeds the value recorded in the load table" << std::endl;
   acc = acc + acc*0.01*slopePer*rotationFactor;
@@ -202,10 +205,10 @@ float GetSpeed::GetSafetySpeed (unsigned long safetyDistance, float dSpeed,
     std::cout << "The slope exceeds the normal range (-35-30) ‰: "<< slopePer << std::endl;
     return -1;
   }
-  if (dSpeed > maxSpeed){
-    std::cout << "The speed exceeds the maximum speed (140km/h): " << dSpeed <<std::endl;
-    return -1;
-  }
+  // if (dSpeed > maxSpeed){
+  //   std::cout << "The speed exceeds the maximum speed (140km/h): " << dSpeed <<std::endl;
+  //   return -1;
+  // }
 
   for (float i=0; i<=140; i+=1){
     float tempAcc = GetMaxAcc(dSpeed, loadSituation, slopePer);

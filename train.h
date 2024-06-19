@@ -2,7 +2,7 @@
  * @Description: GetSpeed类和载荷-牵引加速度对应表
  * @Author: zy
  * @Date: 2024-06-07 08:53:53
- * @LastEditTime: 2024-06-19 15:13:11
+ * @LastEditTime: 2024-06-19 17:12:01
  * @LastEditors: zhang.hq zhang.hq@cidi.ai
  */
 
@@ -60,15 +60,15 @@ class GetSpeed{
     float KmTurnToM(float val); // 单位km/h转换为m/s
 
     const int maxSpeed = 140;            // 列车最大行驶速度
-    const float alarmTime = 3;           // 列车报警反应时间
+    const float alarmTime = 3.0;         // 列车报警反应时间
     const float cutoffTime = 1.1;        // 列车惰行时间
-    const float setupTime = 1;           // 列车建立制动时间
+    const float setupTime = 1.0;         // 列车建立制动时间
     const float rotationFactor = 1.0875; // 旋转质量系数
     const float coastingDec = 0.15;      // 惰行减速度
     const float averageBrakingDec = 1.2; // 平均制动减速度
     const float brakingDecDry = 1.05;    // 制动减速度(干燥轨道最小减速度)
     const float brakingDecMoist = 0.78;  // 制动减速度(湿轨道最小减速度)
-    const float riskLevel = 5;           // 风险等级定义系数
+    const float riskLevel = 5.0;         // 风险等级定义系数
 };
 
 static std::map<float,float> AW0 = {{0,1}, {7.3,1.031}, {14.7,1.029}, {22.1,1.028}, {29.5,1.026}, {36.9,1.024}, {44.3,1.022},{ 51.6,1.019}, {59,0.998}, {66,0.897},
