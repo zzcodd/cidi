@@ -1,14 +1,7 @@
 #include "train.h"
 #include <bits/stdc++.h>
 
-enum LoadSituation {
-  NO_LOAD = 0,    // 空载
-  FULL_SEATS,     // 满座
-  FULL_LOAD,      // 满载
-  OVERLOAD        // 超载
-};
-
-float GetSpeed::GetAcc(float dSpeed, int loadSituation, float slopePer) {
+float GetSpeed::GetMaxAcc(float dSpeed, enum LoadCond loadSituation, float slopePer) {
   std::map<float,float>* AW = nullptr;
   switch (loadSituation) {
     case NO_LOAD:
@@ -21,8 +14,7 @@ float GetSpeed::GetAcc(float dSpeed, int loadSituation, float slopePer) {
       AW = &AW3;
       break;
     default:
-      std::cout << "Invalid load condition" << std::endl;
-      return -1; // 返回错误标识或默认值
+      AW = &AW0;
   }
   float acc = -1;
   for(auto it = AW->begin(); it != AW->end(); it++) {
@@ -31,42 +23,38 @@ float GetSpeed::GetAcc(float dSpeed, int loadSituation, float slopePer) {
       break;
     }
   }
-  if(acc == -1) std::cout << "The current speed exceeds the value recorded in the load table" << std::endl;
+  if(acc < 0) 
+    std::cout << "The current speed exceeds the value recorded in the load table" << std::endl;
   acc = acc + acc*0.01*slopePer*rotationFactor;
   return acc;
 };
 
-float GetSpeed::DistancePhase12 (float dSpeed, float correctAcc) {
-  float s12 = dSpeed*(alarmTime+cutoffTime)+0.5*correctAcc*(alarmTime+cutoffTime)*(alarmTime+cutoffTime);
+float GetSpeed::DistancePhase12 (float dSpeed, float maxAcc) {
+  float s12 = dSpeed*(alarmTime+cutoffTime) + 
+              0.5*maxAcc*(alarmTime+cutoffTime)*(alarmTime+cutoffTime);
   return s12;   
 };
 
-float GetSpeed::DistancePhase3(float dSpeed, float correctAcc) {
-  dSpeed = dSpeed +correctAcc*(alarmTime+cutoffTime);
-  float s3 = dSpeed*setupTime-0.5*coastingDec*setupTime*setupTime;
+float GetSpeed::DistancePhase3(float dSpeed, float maxAcc) {
+  dSpeed = dSpeed + maxAcc*(alarmTime+cutoffTime);
+  float s3 = dSpeed*setupTime - 0.5*coastingDec*setupTime*setupTime;
   return s3;
 };
 
-enum WeatherSituation {
-  DRY = 0,    // 干燥轨道
-  MOIST,     // 湿润轨道
-};
-
-float GetSpeed::DistancePhase4(float dSpeed, float correctAcc, int dWeather) {
+float GetSpeed::DistancePhase4(float dSpeed, float maxAcc, enum WeatherCond dWeather) {
   float brakingDec = 0;
   switch(dWeather){
     case DRY:
-      brakingDec = brakingDecDry ;
+      brakingDec = brakingDecDry;
       break;
     case MOIST:
-      brakingDec = brakingDecMoist ;
+      brakingDec = brakingDecMoist;
       break;
     default:
-      std::cout << "Invalid weather condition" << std::endl;
-      return -1; // 返回错误标识或默认值
+      brakingDec = brakingDecMoist;
   }
-  dSpeed = dSpeed+correctAcc*(alarmTime+cutoffTime);
-  dSpeed = dSpeed-coastingDec*setupTime;
+  dSpeed = dSpeed + maxAcc*(alarmTime+cutoffTime);
+  dSpeed = dSpeed - coastingDec*setupTime;
   return (dSpeed*dSpeed) / (2*brakingDec);
 };
 
@@ -84,31 +72,25 @@ float GetSpeed::KmTurnToM(float val) {
  * @Date: 2024-06-17 14:50:47
  * @LastEditTime: Do not edit
  * @LastEditors: zy
- * @param {int} dMode           列车风险等级评估模式
  * @param {float} dSpeed      行车速度
- * @param {float } mSpeed    最大安全速度
- * @param {int} curState         探测障碍物情况
+ * @param {float } mSpeed     最大安全速度
+ * @param {int} dMode         列车风险等级评估模式
+ * @param {bool} curState     探测障碍物情况
  */
-std::string GetSpeed::GetDrivingRisk (int dMode, float dSpeed, float mSpeed, int curState){
-    //cout<<"列车风险等级评估模式为： "<<drivingMode[dMode]<<endl;
-  std::string curMode = drivingMode[dMode];
-  std::string dRisk = " ";
-  if(curMode == "正常模式" && curState == 0) {
-    dRisk = "低风险";
-  }
-  if( curMode == "后备模式" || curState == 1) {
+enum RrainRisk GetSpeed::GetDrivingRisk(float dSpeed, float mSpeed, enum DriveMode dMode, bool curState){
+  enum RrainRisk dRisk = LOW_RISK;
+  if(curState || dMode == Standby_Mode) {
     if(dSpeed > mSpeed){
-      dRisk = "High risk";
-    } else if(dSpeed >= mSpeed-riskLevel ) {
-      dRisk = "Medium risk";
-    } else if(dSpeed>0) {
-      dRisk = "Low risk";
-    }       
+      dRisk = HIGH_RISK;
+    } else if(dSpeed >= mSpeed - riskLevel) {
+      dRisk = MED_RISK;
+    } else {
+      dRisk = LOW_RISK;
+    }   
   }
-  std::cout << "The risk level of the current train is  " << dRisk << std::endl;
-
   return dRisk;
  };
+ 
  /**
   * @description: 得到不同速度和坡度下，不同载荷情况，不同行车天气下的刹车距离
   * @return {*} 打印刹车距离，无返回值。
@@ -117,7 +99,6 @@ std::string GetSpeed::GetDrivingRisk (int dMode, float dSpeed, float mSpeed, int
   * @LastEditTime: Do not edit
   * @LastEditors: zy
   */
-
 void GetSpeed::GetBrakingDistance() {
   float dSpeed = 10, slopePer = 0;
   std::string filename = "braking_distances.txt"; // 输出文件的名称
@@ -145,20 +126,20 @@ void GetSpeed::GetBrakingDistance() {
   outfile << "The maximum braking distance under different load conditions and weather conditions (Unit: meters) " << std::endl;
 
   for (dSpeed; dSpeed <= 140; dSpeed += 10) {
-    int loadSituation[] = {NO_LOAD, FULL_SEATS, FULL_LOAD, OVERLOAD};
-    int weather[] = {DRY, MOIST};
+    enum LoadCond loadSituation[] = {NO_LOAD, FULL_SEATS, FULL_LOAD, OVERLOAD};
+    enum WeatherCond weather[] = {DRY, MOIST};
     std::vector<std::string> weather_string = {"DRY_TRACK", "MOIST_TRACK"};
 
     outfile <<  "----------------------------------------------------------" << std::endl;
     outfile << dSpeed << " km/h" << std::setw(5) <<" " << std::setw(15) << "NO_LOAD" << std::setw(15) << "FULL_LOAD" << std::setw(15) << "OVERLOAD" << std::endl;
 
     float m_dSpeed = KmTurnToM(dSpeed);
-    for (int i : weather) {
+    for (enum WeatherCond i : weather) {
       outfile << std::setw(15) << std::left << weather_string[i] << "\t";
-      for (int j : loadSituation) {
+      for (enum LoadCond j : loadSituation) {
         if (j == FULL_SEATS) continue; 
         float distance = 0;
-        float tempA = GetAcc(dSpeed, j, slopePer);
+        float tempA = GetMaxAcc(dSpeed, j, slopePer);
         distance = DistancePhase12(m_dSpeed, tempA) + DistancePhase3(m_dSpeed, tempA) + DistancePhase4(m_dSpeed, tempA, i);
         outfile << std::fixed << std::setprecision(2) << std::setw(18) << distance << "\t";
       }
@@ -188,7 +169,7 @@ void GetSpeed::GetBrakingDistance() {
 //       for(int j : loadSituation) {
 //         if(j==1 ) continue;
 //         float distance = 0;
-//         float tempA = GetAcc(dSpeed, j, slopePer );
+//         float tempA = GetMaxAcc(dSpeed, j, slopePer );
 //         distance = DistancePhase12(m_dSpeed, tempA) + DistancePhase3(m_dSpeed, tempA) + DistancePhase4(m_dSpeed, tempA, i);
 //         std::cout << std::fixed << std::setprecision(2) << std::setw(10) <<distance ; 
 //       }
@@ -202,58 +183,41 @@ void GetSpeed::GetBrakingDistance() {
  * @Author: zy
  * @Date: 2024-06-12 15:28:41
  * @LastEditors: zy
- * @param {float} safetyDistance     最大安全距离
- * @param {float} dSpeed                    列车运行速度
- * @param {int} dMode                          列车风险等级评估模式
- * @param {int} loadSituation           列车载荷情况
- * @param {float} slopePer                  坡度千分数
- * @param {int} curState                       探测障碍物情况
+ * @param {unsigned long} safetyDistance     最大安全距离(发现障碍物则为最近障碍物距离，否则为激光可视距离)
+ * @param {float} dSpeed                     列车运行速度
+ * @param {int} dMode                        列车风险等级评估模式
+ * @param {int} loadSituation                列车载荷情况
+ * @param {float} slopePer                   坡度千分数
  * @param {int} dWeather                     行车天气(轨道状态)
  */
-float GetSpeed::GetSafetySpeed(float safetyDistance, float dSpeed, int dMode, int loadSituation, float slopePer, int curState, int dWeather) {
+float GetSpeed::GetSafetySpeed (unsigned long safetyDistance, float dSpeed, 
+                                enum LoadCond loadSituation, 
+                                float slopePer, enum WeatherCond dWeather) {
   float  mSpeed = 0;  //km/h
-  if(curState !=0 && curState != 1) {
-    std::cout<<"The input of whether there are obstacles in front is incorrect (1 indicates obstacles, 0 indicates no obstacles)" <<std::endl;
+  if (safetyDistance > 1000){
+    std::cout << "The safe distance is incorrect (0-1000m): " << safetyDistance << std::endl;
     return -1;
   }
-  if(safetyDistance<=0 || safetyDistance>400){
-    std::cout << "The nearest safe distance entered is incorrect (0-400m), please re-enter" << std::endl;
+  if (slopePer<-0.035 || slopePer > 0.030) {
+    std::cout << "The slope exceeds the normal range (-35-30) ‰: "<< slopePer << std::endl;
     return -1;
   }
-  if(slopePer<-0.035 || slopePer >0.030  ) {
-    std::cout << "The input slope exceeds the normal range (-35-30) ‰, please re-enter" << std::endl;
+  if (dSpeed > maxSpeed){
+    std::cout << "The speed exceeds the maximum speed (140km/h): " << dSpeed <<std::endl;
     return -1;
   }
-  if(dSpeed > maxSpeed){
-    std::cout << "The input speed exceeds the maximum train speed (140km/h), please re-enter" << std::endl;
-    return -1;
-  }
-  if(loadSituation!=0 && loadSituation!=2 && loadSituation!=3){
-    std::cout << "Please re-enter the correct load condition (AW0, AW2, AW3)" << std::endl;
-    return -1;
-  }
-  if(dMode !=0 && dMode!=1){          
-    std::cout << "Please re-enter the correct train risk level assessment mode (normal mode backup mode)" << std::endl;
-    return -1;
-  }
-  if(dWeather !=0 && dWeather!=1){          
-    std::cout << "Please re-enter the correct weather conditions (dry or moist)" << std::endl;
-    return -1;
-  }
-  for(float i=0; i<=140; i+=1){
-    float tempAcc = GetAcc(dSpeed, loadSituation, slopePer);
+
+  for (float i=0; i<=140; i+=1){
+    float tempAcc = GetMaxAcc(dSpeed, loadSituation, slopePer);
     float tempSpeed = KmTurnToM(i);
     
-    float s0 = DistancePhase12(tempSpeed, tempAcc)+DistancePhase3(tempSpeed, tempAcc)+DistancePhase4(tempSpeed, tempAcc, dWeather);
-    if(s0>safetyDistance) {
-      mSpeed= i-1;
+    float s0 = DistancePhase12(tempSpeed, tempAcc) + DistancePhase3(tempSpeed, tempAcc) +
+               DistancePhase4(tempSpeed, tempAcc, dWeather);
+    if (s0 > safetyDistance) {
+      mSpeed = i-1;
       break;
-      };
+    }
   }
-      
-  std::cout << std::endl << "-------------------------------------------------" << std::endl;
-  std::cout << "The current speed of the train is  " << std::fixed << std::setprecision(2) << KmTurnToM(dSpeed) << " m/s " << dSpeed << " km/h " << std::endl;
-  std::cout << "The maximum safe speed of the current train is " << std::fixed << std::setprecision(2) << KmTurnToM(mSpeed) << " m/s  " <<  mSpeed << " km/h " << std::endl;
 
   return mSpeed;
 };

@@ -2,16 +2,39 @@
  * @Description: GetSpeed类和载荷-牵引加速度对应表
  * @Author: zy
  * @Date: 2024-06-07 08:53:53
- * @LastEditTime: 2024-06-17 17:39:50
- * @LastEditors: zy
+ * @LastEditTime: 2024-06-19 15:13:11
+ * @LastEditors: zhang.hq zhang.hq@cidi.ai
  */
 
 #include <bits/stdc++.h>
 #ifndef  _TRAIN_H
 #define _TRAIN_H
 
+enum WeatherCond {
+  DRY = 0,    // 干燥轨道
+  MOIST,     // 湿润轨道
+};
+
+enum LoadCond {
+  NO_LOAD = 0,    // 空载
+  FULL_SEATS,     // 满座
+  FULL_LOAD,      // 满载
+  OVERLOAD        // 超载
+};
+
+enum DriveMode {
+  NORMAL_MODE = 0,
+  Standby_Mode
+};
+
+enum RrainRisk {
+  LOW_RISK = 0,
+  MED_RISK,
+  HIGH_RISK
+};
+
 /**
- * @description: 三个借口分别得到：最大安全速度、行车风险、刹车距离
+ * @description: 三个接口分别得到：最大安全速度、行车风险、刹车距离
  * @brief：基于当前障碍物距离，得到列车最大速度类。
  * @Author: zy
  * @Date: 2024-06-17 14:41:49
@@ -20,15 +43,18 @@
  */
 class GetSpeed{
   public:
-    float GetSafetySpeed(float safetyDistance, float dSpeed, int dMode, int loadSituation = 0, float slopePer = 0, int curState = 1, int dWeather = 0);    //得到当前输入下最大安全速度
-    std::string GetDrivingRisk ( int dMode, float dSpeed, float  mSpeed, int curState);       //得到当前列车行车风险
+    float GetSafetySpeed(unsigned long safetyDistance, float dSpeed, 
+                         enum LoadCond loadSituation = NO_LOAD, float slopePer = 0.030,
+                         enum WeatherCond dWeather = MOIST);    //得到当前输入下最大安全速度
+    enum RrainRisk GetDrivingRisk (float dSpeed, float mSpeed, enum DriveMode dMode = NORMAL_MODE, 
+                                bool curState = false);//得到当前列车行车风险
     void GetBrakingDistance ();    //考虑不同速度和坡度(默认为0)下各种情况下的刹车距离(天气、载荷情况)      
 
   private:
-    float GetAcc(float dSpeed, int loadSituation, float slopePer);    //得到当前列车速度下的修正后加速度
-    float DistancePhase12(float dSpeed, float correctAcc);            // 计算列车第一阶段和第二阶段运行距离
-    float DistancePhase3(float dSpeed, float correctAcc);             // 计算列车第三阶段运行距离
-    float DistancePhase4(float dSpeed, float correctAcc, int dWeather); // 计算列车第四阶段运行距离
+    float GetMaxAcc(float dSpeed, enum LoadCond  loadSituation, float slopePer);// 得到当前列车速度下的修正后加速度
+    float DistancePhase12(float dSpeed, float maxAcc);            // 计算列车第一阶段和第二阶段运行距离
+    float DistancePhase3(float dSpeed, float maxAcc);             // 计算列车第三阶段运行距离
+    float DistancePhase4(float dSpeed, float maxAcc, enum WeatherCond dWeather);  // 计算列车第四阶段运行距离
               
     float MTurnToKm(float val); // 单位m/s转换为km/h
     float KmTurnToM(float val); // 单位km/h转换为m/s
@@ -43,8 +69,6 @@ class GetSpeed{
     const float brakingDecDry = 1.05;    // 制动减速度(干燥轨道最小减速度)
     const float brakingDecMoist = 0.78;  // 制动减速度(湿轨道最小减速度)
     const float riskLevel = 5;           // 风险等级定义系数
-
-    std::vector<std::string> drivingMode = {"后备模式", "正常模式"}; // 列车运行风险等级评估模式
 };
 
 static std::map<float,float> AW0 = {{0,1}, {7.3,1.031}, {14.7,1.029}, {22.1,1.028}, {29.5,1.026}, {36.9,1.024}, {44.3,1.022},{ 51.6,1.019}, {59,0.998}, {66,0.897},

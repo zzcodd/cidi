@@ -2,8 +2,8 @@
  * @Description: main函数，执行列车输入情况以及列车最大安全速度与危险等级的输出。
  * @Author: zy
  * @Date: 2024-06-06 17:51:53
- * @LastEditTime: 2024-06-18 11:01:56
- * @LastEditors: zy
+ * @LastEditTime: 2024-06-19 15:23:42
+ * @LastEditors: zhang.hq zhang.hq@cidi.ai
  */
     
 #include <bits/stdc++.h>
@@ -18,6 +18,7 @@ int GetLoadSituation();
 int GetDrivingMode();
 int GetWeatherCondition();
 void Input(int &, float &, float &, float &, int &, int &, int &);
+float KmTurnToM(float val);
           
 int main(int argc, char *argv[]) {
   float safetyDistance = 0, slopePer = 0, dSpeed = 0;
@@ -26,17 +27,28 @@ int main(int argc, char *argv[]) {
   label:
     Input(curState, safetyDistance, slopePer, dSpeed, loadSituation, dMode, dWeather);
     GetSpeed TrainOne;
-    float mSpeed = TrainOne.GetSafetySpeed(safetyDistance, dSpeed, dMode, loadSituation, slopePer, curState, dWeather);
+    float mSpeed = TrainOne.GetSafetySpeed(safetyDistance, dSpeed, (enum LoadCond)loadSituation, slopePer, (enum WeatherCond)dWeather);
   if (mSpeed == -1 || mSpeed <= 0) {
     std::cout << std::endl << "-------------------------------------------------" << std::endl;
     goto label;
   }
+
+  std::cout << std::endl << "-------------------------------------------------" << std::endl;
+  std::cout << "The current speed of the train is  " << std::fixed << std::setprecision(2) << 
+    KmTurnToM(dSpeed) << " m/s " << dSpeed << " km/h " << std::endl;
+  std::cout << "The maximum safe speed of the current train is " << std::fixed << std::setprecision(2) << 
+    KmTurnToM(mSpeed) << " m/s  " <<  mSpeed << " km/h " << std::endl;
   
-  string mRisk = TrainOne.GetDrivingRisk(dMode, dSpeed, mSpeed, curState);
+  enum RrainRisk mRisk = TrainOne.GetDrivingRisk(dSpeed, mSpeed, (enum DriveMode)dMode, curState);
+  std::cout << "The risk level of the current train is " << mRisk << std::endl;
   TrainOne.GetBrakingDistance();
     
   return 0;
 }
+
+float KmTurnToM(float val) {
+  return val*1000/3600;
+};
   
 int obSituation() {
   int curState = 1;
