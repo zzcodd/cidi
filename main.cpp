@@ -2,7 +2,7 @@
  * @Description: main函数，执行列车输入情况以及列车最大安全速度与危险等级的输出。
  * @Author: zy
  * @Date: 2024-06-06 17:51:53
- * @LastEditTime: 2024-06-21 10:32:57
+ * @LastEditTime: 2024-06-21 11:08:34
  * @LastEditors: zy
  */
     
