@@ -201,7 +201,7 @@ float GetSpeed::GetSafetySpeed (unsigned long safetyDistance, float dSpeed,
     std::cout << "The safe distance is incorrect (0-1000m): " << safetyDistance << std::endl;
     return -1;
   }
-  if (slopePer<-0.035 || slopePer > 0.030) {
+  if (slopePer<-35 || slopePer > 30) {
     std::cout << "The slope exceeds the normal range (-35-30) ‰: "<< slopePer << std::endl;
     return -1;
   }

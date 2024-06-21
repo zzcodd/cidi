@@ -2,8 +2,8 @@
  * @Description: main函数，执行列车输入情况以及列车最大安全速度与危险等级的输出。
  * @Author: zy
  * @Date: 2024-06-06 17:51:53
- * @LastEditTime: 2024-06-19 15:23:42
- * @LastEditors: zhang.hq zhang.hq@cidi.ai
+ * @LastEditTime: 2024-06-21 10:32:57
+ * @LastEditors: zy
  */
     
 #include <bits/stdc++.h>
@@ -74,7 +74,6 @@ float GetSlopePer() {
   float slope = 0;
   std::cout << "请输入此刻坡度千分数为‰" << std::endl;
   std::cin >> slope;
-  slope = slope/1000;
   return slope;
 };
 
